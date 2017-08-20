@@ -8,6 +8,8 @@ const url = require('url');
 const app = express();
 var expressWs = require('express-ws')(app);
 
+var apiKey = process.env.API_KEY;
+
 app.use(express.static('public'));
 
 var storage = multer.diskStorage({
@@ -30,19 +32,21 @@ app.ws('/socket', function(ws, req) {
 });
 
 app.post('/upload', upload.single('upload'), function (req, res, next) {
-  //console.log(req, res, next);
-  res.send('');
-  // req.file is the `upload` file
-  // req.body will hold the text fields, if there were any
+  console.log(req.body);
+  if ( ! req.body.api_key || req.body.api_key !== apiKey ) {
+    res.send('bad api key!');
+  }
+  else {
+    res.send('');
 
-  console.log(req.file);
-  var dest = 'uploads/' + req.file.filename;
+    console.log(req.file);
+    var dest = 'uploads/' + req.file.filename;
   
-  var listeners = expressWs.getWss('/socket');
-  console.log("HEY!", listeners.clients);
-  listeners.clients.forEach(function each(client) {
-    client.send(JSON.stringify({file: dest}));
-  });
+    var listeners = expressWs.getWss('/socket');
+    listeners.clients.forEach(function each(client) {
+      client.send(JSON.stringify({file: dest}));
+    });
+  }
 });
 
 
