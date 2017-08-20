@@ -4,6 +4,7 @@ var path = require('path');
 const http = require('http');
 const url = require('url');
 
+require('dotenv').config()
 
 const app = express();
 var expressWs = require('express-ws')(app);
